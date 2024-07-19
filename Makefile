@@ -80,9 +80,9 @@ test:
 BINARY        ?= external-dns
 SOURCES        = $(shell find . -name '*.go')
 IMAGE_STAGING  = gcr.io/k8s-staging-external-dns/$(BINARY)
-REGISTRY      ?= us.gcr.io/k8s-artifacts-prod/external-dns
+REGISTRY      ?= blendlabs
 IMAGE         ?= $(REGISTRY)/$(BINARY)
-VERSION       ?= $(shell git describe --tags --always --dirty --match "v*")
+VERSION       ?= v0.14.20 #$(shell git describe --tags --always --dirty --match "v*")
 BUILD_FLAGS   ?= -v
 LDFLAGS       ?= -X sigs.k8s.io/external-dns/pkg/apis/externaldns.Version=$(VERSION) -w -s
 ARCH          ?= amd64
@@ -101,11 +101,11 @@ build.push/multiarch: ko
     VERSION=${VERSION} \
     ko build --tags ${VERSION} --bare --sbom ${IMG_SBOM} \
       --image-label org.opencontainers.image.source="https://github.com/kubernetes-sigs/external-dns" \
-      --image-label org.opencontainers.image.revision=$(shell git rev-parse HEAD) \
+      --image-label org.opencontainers.image.revision=v0.14.20 \
       --platform=${IMG_PLATFORM}  --push=${IMG_PUSH} .
 
 build.image/multiarch:
-	$(MAKE) IMG_PUSH=false build.push/multiarch
+	$(MAKE) IMG_PUSH=true build.push/multiarch
 
 build.image:
 	$(MAKE) IMG_PLATFORM=linux/$(ARCH) build.image/multiarch
